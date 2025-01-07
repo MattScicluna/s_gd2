@@ -451,7 +451,7 @@ void layout_weighted_convergent(int n, double* X, int m, int* I, int* J, double*
 }
 
 // d and w should be condensed distance matrices
-void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* eta, int seed)
+void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* eta, int seed, double lambda_repulsion)
 {
     // initialize SGD
     int nC2 = (n*(n-1))/2;

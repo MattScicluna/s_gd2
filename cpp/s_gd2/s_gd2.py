@@ -89,7 +89,7 @@ def layout_sparse(
     return X
 
 
-def mds_direct(n, d, w=None, etas=None, num_dimensions=2, random_seed=None, init=None):
+def mds_direct(n, d, w=None, etas=None, num_dimensions=2, random_seed=None, init=None, **mds_kwargs):
     """takes nC2 vectors d (distance) and w (weight) with a vector of step sizes eta
     and returns a n-by-2 matrix of positions X"""
 
@@ -111,7 +111,7 @@ def mds_direct(n, d, w=None, etas=None, num_dimensions=2, random_seed=None, init
     X = _random_init(n, random_seed, init, num_dimensions)
 
     # do mds
-    cpp.mds_direct(X, d, w, etas, random_seed)
+    cpp.mds_direct(X, d, w, etas, random_seed, **mds_kwargs)
     return X
 
 
