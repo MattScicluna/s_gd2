@@ -166,7 +166,7 @@
                        double* d, int len_d,
                        double* w, int len_w,
                        double* eta, int len_eta, int rseed, 
-                       double lambda_repulsion) {
+                       double lambda_repulsion, double repulsion_power) {
 
         if (kd != 2 && kd !=3) {
             PyErr_Format(PyExc_ValueError, "only 2D and 3D positions are currently supported");
@@ -177,7 +177,7 @@
             PyErr_Format(PyExc_ValueError, "d or w not right length for condensed distance matrix");
             return;
         }
-        mds_direct(n, kd, X, d, w, len_eta, eta, rseed, lambda_repulsion);
+        mds_direct(n, kd, X, d, w, len_eta, eta, rseed, lambda_repulsion, repulsion_power);
     }
 %}
 

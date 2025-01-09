@@ -14,52 +14,67 @@
 
 using std::vector;
 
-void sgd(double* X, vector<term> &terms, const vector<double> &etas, const int seed)
+void sgd(double* X, vector<term> &terms, const vector<double> &etas, const int seed, const double lambda_repulsion, const double repulsion_power)
 {
-    // seed random number generator
-    // std::minstd_rand rng(seed);
-    // std::mt19937 rng(seed);
-    // srand(seed);
+    // Seed random number generator
     rk_state rstate;
     rk_seed(seed, &rstate);
 
-    // iterate through step sizes
-    for (unsigned i_eta=0; i_eta<etas.size(); i_eta++)
+    // Iterate through step sizes
+    for (unsigned i_eta = 0; i_eta < etas.size(); i_eta++)
     {
         const double eta = etas[i_eta];
-        // shuffle terms
-        // std::shuffle(terms.begin(), terms.end(), rng);
-        // fisheryates_shuffle(terms);
+
+        // Shuffle terms
         fisheryates_shuffle(terms, rstate);
 
         unsigned n_terms = terms.size();
-        for (unsigned i_term=0; i_term<n_terms; i_term++)
+        for (unsigned i_term = 0; i_term < n_terms; i_term++)
         {
             const term &t = terms[i_term];
             const int &i = t.i, &j = t.j;
             const double &w_ij = t.w;
             const double &d_ij = t.d;
 
-            // cap step size
+            // Cap step size
             double mu = eta * w_ij;
             if (mu > 1)
                 mu = 1;
 
-            double dx = X[i*2]-X[j*2], dy = X[i*2+1]-X[j*2+1];
-            double mag = sqrt(dx*dx + dy*dy);
+            double dx = X[i * 2] - X[j * 2];
+            double dy = X[i * 2 + 1] - X[j * 2 + 1];
+            double mag = sqrt(dx * dx + dy * dy) + 1e-9; // Avoid division by zero
 
-            // check distances for early stopping
-            double r = (mu * (mag-d_ij)) / (2*mag);
+            // Compute attractive gradient
+            double r = (mu * (mag - d_ij)) / (2 * mag);
             double r_x = r * dx;
             double r_y = r * dy;
-            
-            X[i*2] -= r_x;
-            X[i*2+1] -= r_y;
-            X[j*2] += r_x;
-            X[j*2+1] += r_y;
+
+            if (lambda_repulsion > 0) 
+            {
+                // Compute repulsion gradient
+                double repulsion_factor = lambda_repulsion / pow(mag, repulsion_power);
+                double repulsion_x = repulsion_factor * dx / mag;
+                double repulsion_y = repulsion_factor * dy / mag;
+
+                // Update positions with combined gradients
+                X[i * 2] -= (r_x - repulsion_x); // Include repulsion term
+                X[i * 2 + 1] -= (r_y - repulsion_y); // Include repulsion term
+                X[j * 2] += (r_x - repulsion_x); // Include repulsion term
+                X[j * 2 + 1] += (r_y - repulsion_y); // Include repulsion term
+            } 
+            else 
+            {
+                // Update positions without repulsion
+                X[i * 2] -= r_x;
+                X[i * 2 + 1] -= r_y;
+                X[j * 2] += r_x;
+                X[j * 2 + 1] += r_y;
+            }
         }
     }
 }
+
 void fisheryates_shuffle(vector<term> &terms, rk_state &rstate)
 {
     int n = terms.size();
@@ -428,15 +443,20 @@ void layout_unweighted(int n, double* X, int m, int* I, int* J, int t_max, doubl
 {
     vector<term> terms = bfs(n, m, I, J);
     vector<double> etas = schedule(terms, t_max, eps);
-    sgd(X, terms, etas, seed);
+    double lambda_repulsion = 0.0; // Default: no repulsion
+    double repulsion_power = 2.0; // Default power (can be any value, irrelevant if lambda_repulsion == 0)
+    sgd(X, terms, etas, seed, lambda_repulsion, repulsion_power);
 }
 
 void layout_weighted(int n, double* X, int m, int* I, int* J, double* V, int t_max, double eps, int seed)
 {
     vector<term> terms = dijkstra(n, m, I, J, V);
     vector<double> etas = schedule(terms, t_max, eps);
-    sgd(X, terms, etas, seed);
+    double lambda_repulsion = 0.0; // Default: no repulsion
+    double repulsion_power = 2.0; // Default power (can be any value, irrelevant if lambda_repulsion == 0)
+    sgd(X, terms, etas, seed, lambda_repulsion, repulsion_power);
 }
+
 void layout_unweighted_convergent(int n, double* X, int m, int* I, int* J, int t_max, double eps, double delta, int t_maxmax, int seed)
 {
     vector<term> terms = bfs(n, m, I, J);
@@ -451,7 +471,7 @@ void layout_weighted_convergent(int n, double* X, int m, int* I, int* J, double*
 }
 
 // d and w should be condensed distance matrices
-void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* eta, int seed, double lambda_repulsion)
+void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* eta, int seed, double lambda_repulsion, double repulsion_power)
 {
     // initialize SGD
     int nC2 = (n*(n-1))/2;
@@ -476,7 +496,7 @@ void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, doubl
     }
     
     if (kd == 2)
-        sgd(X, terms, etas, seed);
+        sgd(X, terms, etas, seed, lambda_repulsion, repulsion_power);
     else if (kd == 3)
         sgd3D(X, terms, etas, seed);
     else

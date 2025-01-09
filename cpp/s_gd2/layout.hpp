@@ -16,7 +16,7 @@ void layout_weighted_convergent(int n, double* X, int m, int* I, int* J, double*
 void layout_sparse_unweighted(int n, double* X, int m, int* I, int* J, int p, int t_max, double eps, int seed);
 void layout_sparse_weighted(int n, double* X, int m, int* I, int* J, double* V, int p, int t_max, double eps, int seed);
 
-void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* etas, int seed, double lambda_repulsion);
+void mds_direct(int n, int kd, double* X, double* d, double* w, int t_max, double* etas, int seed, double lambda_repulsion, double repulsion_power);
 
 
 //////////////
@@ -28,7 +28,7 @@ struct term
     double d, w;
     term(int i, int j, double d, double w) : i(i), j(j), d(d), w(w) {}
 };
-void sgd(double* X, vector<term> &terms, const vector<double> &etas, const int seed);
+void sgd(double* X, vector<term> &terms, const vector<double> &etas, const int seed,  const double lambda_repulsion, const double repulsion_power);
 void sgd_threshold(double* X, vector<term> &terms, const vector<double> &etas, const double delta, const int seed);
 void sgd3D(double* X, vector<term> &terms, const vector<double> &etas, const int seed);
  
@@ -67,7 +67,7 @@ struct term_sparse
     double d, w_ij, w_ji;
     term_sparse(int i, int j, double d) : i(i), j(j), d(d), w_ij(0), w_ji(0) {}
 };
-void sgd(double* X, vector<term_sparse>& terms, const vector<double>& etas, const int seed);
+void sgd(double* X, vector<term_sparse>& terms, const vector<double>& etas, const int seed, const double lambda_repulsion, const double repulsion_power);
 
 void fisheryates_shuffle(vector<term_sparse> &terms, rk_state &rstate);
 

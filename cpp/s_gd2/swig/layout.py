@@ -86,6 +86,6 @@ def layout_sparse_unweighted(X, I, J, p, t_max, eps, rseed):
 def layout_sparse_weighted(X, I, J, V, p, t_max, eps, rseed):
     return _layout.layout_sparse_weighted(X, I, J, V, p, t_max, eps, rseed)
 
-def mds_direct(X, d, w, eta, rseed, lambda_repulsion):
-    return _layout.mds_direct(X, d, w, eta, rseed, lambda_repulsion)
+def mds_direct(X, d, w, eta, rseed, lambda_repulsion, repulsion_power):
+    return _layout.mds_direct(X, d, w, eta, rseed, lambda_repulsion, repulsion_power)
 

@@ -3226,7 +3226,7 @@ namespace swig {
                        double* d, int len_d,
                        double* w, int len_w,
                        double* eta, int len_eta, int rseed, 
-                       double lambda_repulsion) {
+                       double lambda_repulsion, double repulsion_power) {
 
         if (kd != 2 && kd !=3) {
             PyErr_Format(PyExc_ValueError, "only 2D and 3D positions are currently supported");
@@ -3237,7 +3237,7 @@ namespace swig {
             PyErr_Format(PyExc_ValueError, "d or w not right length for condensed distance matrix");
             return;
         }
-        mds_direct(n, kd, X, d, w, len_eta, eta, rseed, lambda_repulsion);
+        mds_direct(n, kd, X, d, w, len_eta, eta, rseed, lambda_repulsion, repulsion_power);
     }
 
 
@@ -4771,6 +4771,7 @@ SWIGINTERN PyObject *_wrap_mds_direct(PyObject *self, PyObject *args) {
   int arg9 ;
   int arg10 ;
   double arg11 ;
+  double arg12 ;
   PyArrayObject *array1 = NULL ;
   PyArrayObject *array4 = NULL ;
   int is_new_object4 = 0 ;
@@ -4782,9 +4783,11 @@ SWIGINTERN PyObject *_wrap_mds_direct(PyObject *self, PyObject *args) {
   int ecode10 = 0 ;
   double val11 ;
   int ecode11 = 0 ;
-  PyObject *swig_obj[6] ;
+  double val12 ;
+  int ecode12 = 0 ;
+  PyObject *swig_obj[7] ;
   
-  if (!SWIG_Python_UnpackTuple(args, "mds_direct", 6, 6, swig_obj)) SWIG_fail;
+  if (!SWIG_Python_UnpackTuple(args, "mds_direct", 7, 7, swig_obj)) SWIG_fail;
   {
     array1 = obj_to_array_no_conversion(swig_obj[0], NPY_DOUBLE);
     if (!array1 || !require_dimensions(array1,2) || !require_contiguous(array1)
@@ -4839,9 +4842,14 @@ SWIGINTERN PyObject *_wrap_mds_direct(PyObject *self, PyObject *args) {
     SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "mds_direct" "', argument " "11"" of type '" "double""'");
   } 
   arg11 = static_cast< double >(val11);
+  ecode12 = SWIG_AsVal_double(swig_obj[6], &val12);
+  if (!SWIG_IsOK(ecode12)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode12), "in method '" "mds_direct" "', argument " "12"" of type '" "double""'");
+  } 
+  arg12 = static_cast< double >(val12);
   {
     try {
-      np_mds_direct(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
+      np_mds_direct(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12);
     } catch (std::invalid_argument e) {
       SWIG_exception(SWIG_RuntimeError, e.what());
     }

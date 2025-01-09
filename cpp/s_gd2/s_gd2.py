@@ -103,12 +103,14 @@ def mds_direct(n, d, w=None, etas=None, num_dimensions=2, random_seed=None, init
         )
 
     if etas is None:
-        etas = default_schedule(w)
+        etas = default_schedule(w, 1000)
 
     # seed random state
     random_seed = _check_random_seed(random_seed)
 
     X = _random_init(n, random_seed, init, num_dimensions)
+    # standardize before passing in
+    init = (X - X.mean())/X.std()
 
     # do mds
     cpp.mds_direct(X, d, w, etas, random_seed, **mds_kwargs)
